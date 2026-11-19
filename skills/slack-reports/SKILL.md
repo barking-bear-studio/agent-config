@@ -1,6 +1,6 @@
 ---
 name: slack-reports
-description: Load when a job, cron, script or app event should report to Slack (run summaries, failures that need a human, sales, new leads, claims, contact messages, weekly analytics), or when touching Slack posting code (SLACK_OAUTH_TOKEN, chat.postMessage, Block Kit, mrkdwn, notify/notifyRun, channel lists, #bda-* or #sba-* channels). Defines the house message style and posting mechanics shared across Drew's Next.js/Vercel projects, so new reporters match without copying files around.
+description: Load when a job, cron, script or app event should report to Slack (run summaries, failures that need a human, sales, new leads, claims, contact messages, weekly analytics), or when touching Slack posting code (SLACK_OAUTH_TOKEN, chat.postMessage, Block Kit, mrkdwn, notify/notifyRun, channel lists, #bda-* or #shayna-* channels, reading a channel or thread back). Defines the house message style and posting mechanics shared across Drew's Next.js/Vercel projects, so new reporters match without copying files around.
 version: 1.0.0
 user-invocable: false
 ---
@@ -16,13 +16,14 @@ Slack is the ops feed, not the record. The database is the record; a message say
 
 | | bo-co-art | shayna-art |
 |---|---|---|
-| `notify` returns | `{ channel, ts } \| null` (thread under it) | `boolean` |
-| Threads, `fields` (label/value pairs) | yes (`threadTs`, `fields`) | no |
+| `notify` returns | `{ channel, ts } \| null` (thread under it) | `boolean`; `postNotice` returns `{ channelId, ts } \| null` |
+| Threads, `fields` (label/value pairs) | yes (`threadTs`, `fields`) | `threadTs` yes, `fields` no |
+| Reads Slack back | no | `fetchSlackMessages` (a channel since a date, with thread replies), `fetchSlackReplies` (one thread) |
 | Link URLs | site-relative paths resolved by `absoluteUrl()` | absolute only |
 | Request timeout | none | `AbortSignal.timeout(10_000)` (worth adopting) |
 | `RunGroup` | `count` (true total) and `max` overrides; `items` optional | `items` required; report has `summary` line instead |
 | `RunReport` | `source` joins the title (`Title — source`), `maxItems` | no `source`; fixed `MAX_ITEMS = 20` |
-| Channel const | `slackChannels` (`#bda-*`) | `SLACK_CHANNELS` (`#sba-*`) |
+| Channel const | `slackChannels` (`#bda-*`) | `SLACK_CHANNELS` (`#shayna-*`) |
 
 No other project posts to Slack today. lumetto-app and balero-board have no Slack code.
 
@@ -64,6 +65,8 @@ link:          Reconnect Etsy
 
 - **Env var:** `SLACK_OAUTH_TOKEN` (a bot token, `xoxb-…`). Set on Vercel, and as a GitHub Actions secret for workflows that report. Documented, empty, in `.env.example`. All projects share one Slack workspace.
 - **Call:** `POST https://slack.com/api/chat.postMessage` with `Authorization: Bearer <token>` and `Content-Type: application/json; charset=utf-8`. Body: `channel`, `text` (the notification: what push and screen readers get), `blocks` (the channel layout), `unfurl_links: false`, `unfurl_media: false`, optional `thread_ts`.
+- **The bot and its scopes:** every project posts as one bot user, `barkingbearstudioapp` (Slack workspace Barking Bear Studio; app settings at api.slack.com/apps). Its bot token has `chat:write`, `chat:write.public`, `channels:history`, `groups:history`, `users:read` and `incoming-webhook`. Adding a scope means OAuth & Permissions → Bot Token Scopes → Reinstall; the `xoxb-` token normally stays the same.
+- **Reading Slack back** (shayna-art's letter reads Shayna's notes from `#shayna-newsletter`): `conversations.history` for a channel, `conversations.replies` for a thread, `users.info` for who wrote each. The bot must be a member of the channel. It has no `channels:read`, so it cannot turn a channel name into the id these calls need: keep the `channel` id that `chat.postMessage` returns. Throw when a read fails rather than returning nothing, so "nobody wrote" and "could not look" never read the same.
 - **Blocks:** a `section` with `*title*`; one `section` per body entry; `fields` sections of at most 10 each; a `context` block holding `<url|label>`. Split any section above 2800 characters (Slack rejects 3000); `notifyRun` does this.
 - **Success check:** Slack answers HTTP 200 with `{ ok: false, error }` for most real failures. Check `body.ok`, not the status.
 - **Best-effort, never fatal.** A missing token, Slack outage or revoked token must never fail the job it reports on. Both implementations warn to the console and return null/false. A missing token is the normal case (previews, fresh clones) and stays silent.
@@ -71,11 +74,11 @@ link:          Reconnect Etsy
 - **Runtime:** the module reads `process.env` directly and has no `server-only` import, so it works from serverless routes, `tsx` scripts and GitHub Actions alike. Do not import it from client components.
 - **Sandbox/dev never posts to a prod channel.** shayna-art posts only for `environment === 'production'` (`isReportable()`) and records sandbox runs in the database instead. Elsewhere, a missing token on previews does the same job. Keep that property in any new reporter.
 - **Exactly-once:** retries must not double-post. Two patterns exist: bo-co-art stamps `notifiedAt` on the record when the answer goes out and drains "terminal and not yet notified" (retries and overlapping runs converge); shayna-art's Etsy orders claim each message before posting and release the claim if the post fails, so the webhook and the daily job never both post it. A once-a-day cron with a single trigger needs neither.
-- **Channels:** a typed map, so a typo is a type error rather than a message that lands nowhere. Names are prefixed per project so feeds stay legible in one workspace: `#bda-*` (boulder.art: artists, events, newsletter, inbox, referrals), `#sba-*` (shayna.art: pinterest, etsy, etsy-store). Split by audience and cadence: what happens (sales, claims) separate from how it's run (weekly and monthly reports).
+- **Channels:** a typed map, so a typo is a type error rather than a message that lands nowhere. Names are prefixed per project so feeds stay legible in one workspace: `#bda-*` (boulder.art: artists, events, newsletter, inbox, referrals), `#shayna-*` (shaynalarsen.art: pinterest, etsy, etsy-store, sales, newsletter). Split by audience and cadence: what happens (sales, claims) separate from how it's run (weekly and monthly reports).
 
 ## Adding a new reporter
 
-1. Pick or add a channel key in the project's channel map (new project: new two-or-three-letter prefix, `#xxx-name`). Create the channel and invite the bot.
+1. Pick or add a channel key in the project's channel map (new project: a new short prefix, `#xxx-name`). Create the channel and invite the bot (`/invite @barkingbearstudioapp`).
 2. Copy the bo-co-art `slack.ts` for a new project; otherwise use the project's existing one. Do not write a second Slack client.
 3. Write title, notification and body separately, per the rules above. Read them back as a lock-screen push and as a channel row.
 4. Single event: `notify`. Batch job: `notifyRun` with outcome groups, counts printed even at zero, rows linked.
