@@ -85,9 +85,7 @@ the 4 canonical lens names only. -->
 See `references/lenses.md` for each lens's detailed smell catalog, the end-to-end
 trace method, and the adversarial-verification recipe.
 
-## Depth — go deep by default
-
-This skill is **thorough by default**, not a quick skim.
+## Depth
 
 - **When you can spawn parallel subagents (in Claude Code, the Task tool):** drive a
   fan-out. (a) One **finder per lens** (split large surfaces into file-groups) reads

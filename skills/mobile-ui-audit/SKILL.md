@@ -127,9 +127,9 @@ the full deliverable below.
   screen; invest in offline) present it as a decision-brief option — don't silently
   pick.
 
-## Depth — go deep by default
+## Depth
 
-Thorough by default, not a skim. **When you can spawn parallel subagents (e.g. the
+**When you can spawn parallel subagents (e.g. the
 Task tool):** one finder per surface or per rubric dimension reads + drives in
 parallel and returns structured candidates; **adversarially verify** each (is the
 target really sub-44px at this viewport? does the rail actually have no fallback?),

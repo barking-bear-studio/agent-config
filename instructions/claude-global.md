@@ -26,5 +26,5 @@
 ## Dev server ports (all projects)
 - **Even ports = mine (human); odd ports = the agent's.** Never take my port or kill my server.
 - Each project has a unique **even base** port spaced by 10: `3010`, `3020`, `3030`, … so I can run several projects at once. Human runs on `base`, agent on `base + 1`.
-- The base is declared per-project in `package.json` `config.devPortBase`; `pnpm dev` (human) and `pnpm dev:agent` (agent) derive their ports from it. The agent server is free to run anytime — even while my server runs — because it uses a separate build dir. Full setup + rationale: each repo's `docs/dev-ports.md`.
+- The base is declared per-project in `package.json` `config.devPortBase`; `pnpm dev` (human) and `pnpm dev:agent` (agent) derive their ports from it. The agent server is free to run anytime — even while my server runs — because it uses a separate build dir. Full setup + rationale: each repo's own docs (its `CLAUDE.md` links the page).
 - So: spin up your own `dev:agent` server (`base + 1`) whenever you need to see/screenshot something; don't fetch-only and don't wait for me to free a port.
