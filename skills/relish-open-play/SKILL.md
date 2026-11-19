@@ -21,11 +21,11 @@ Work in your own new tabs (`tabs_context_mcp` with `createIfEmpty: true`). Batch
 ## 1. Find sessions on CourtReserve
 
 - Relish's org id is **13679**. Event list: `https://app.courtreserve.com/Online/Events/List/13679`
-- CourtReserve moved to a new layout in late Oct 2026. The page loads slowly: wait ~4s after navigating. If `get_page_text` says "No text content found", wait a few more seconds and screenshot or retry.
+- The page loads slowly: wait ~4s after navigating. If `get_page_text` says "No text content found", wait a few more seconds and screenshot or retry.
 - Click the **Search** box at the top of the left **Filter** column, type `Open Play Advanced`, press Return, wait ~3s, then read the list. That search also catches the "Ladder Open Play Advanced" hours. Each card reads: a colored level tag (`Open Play Advanced 3.75-4.0`), the title, `Tue, Nov 3rd, 10a - 11a`, the price (10 dollars), spots (`3 of 12 spots remaining` or `FULL`), then a button (`Register`, `Join Waitlist`, `Edit Registration` if he's already in, or `Details`). The little dot beside the spot count is always blue; it doesn't mean the level.
 - **Bookable window is about 7 days**; sign-ups open around 8am a week ahead. Cards showing "Registration opens in …" with a `Details` button aren't open yet. So "this week" means today through the last day that still shows `Register`; say which dates you covered.
 - **Levels.** Drew names them by color, and the tag on each card shows the color and rating:
-  - **yellow** = Advanced 3.75–4.0. Since Nov 2026 most of these hours are titled **"Open Play Advanced"**; the 4–5pm hours are still "Ladder Open Play Advanced". Both count as yellow. This is Drew's default.
+  - **yellow** = Advanced 3.75–4.0. Most of these hours are titled **"Open Play Advanced"**; the 4–5pm hours are "Ladder Open Play Advanced". Both count as yellow. This is Drew's default.
   - **blue** = Upper Intermediate 3.5–3.75
   - **green** = Lower Intermediate 3.25–3.5
   - "Ladder Open Play Expert" (4.0+) and "All Levels Ladder Open Play" are different events; leave them out.
@@ -75,7 +75,7 @@ First check his calendar for that day: if a `drew @ relish …` event already co
 Drew's style for Relish, pickleball and workouts:
 
 - **One event covering the whole block** (10:00–12:00), not one per hour, on the `drew larsen` calendar.
-- **Title**, lowercase: `drew @ relish yellow` for Advanced (`drew @ relish blue` for Upper Intermediate). If he's playing with named people, use `drew @ relish w/ Will`. Older entries used "yellow ladder @ relish" and "drew @ relish adv ladder"; the current form is `drew @ relish <color>`.
+- **Title**, lowercase: `drew @ relish yellow` for Advanced (`drew @ relish blue` for Upper Intermediate). If he's playing with named people, use `drew @ relish w/ Will`.
 - **Color Peacock**, no location, no guests, default notification.
 
 Steps:
